@@ -1,5 +1,5 @@
 import unittest
-from block import markdown_to_blocks, block_to_block_type
+from block import markdown_to_blocks, block_to_block_type, BlockType
 
 class TestHTMLNode(unittest.TestCase):
     def test_markdown_to_blocks(self):
@@ -93,4 +93,23 @@ This paragraph is not part of the list but does have a double new line between i
     )
         
     def test_block_to_block_type(self):
-        
+        blocks =["# This is a **bolded** paragraph that I edited to contain more text!!",
+            "```This is another paragraph with _italic_ text and `code` here, plus some more **text** maybe?\nThis is the same paragraph on a new line\nand a new line```",
+            ">and a new paragraph with a new ling\n>new lien",
+            "- This is a list\n- with **items**\n- and some `code` here\n- and some more text\n- and some more text\n- and some more text",
+            "-and some more text in a new list?\n- and some more text in a new list?",
+            "1. This paragraph is not part of the list but does have a double new line between it and the list.\n2. Now it is an ordered list.",]
+        type_of_blocks = []
+        for block in blocks:
+            type_of_blocks.append(block_to_block_type(block))
+        self.assertEqual(
+    type_of_blocks,
+    [
+        BlockType.HEADING,
+        BlockType.CODE,
+        BlockType.QUOTE,
+        BlockType.UNORDERED_LIST,
+        BlockType.PARAGRAPH,
+        BlockType.ORDERED_LIST,
+    ],
+)

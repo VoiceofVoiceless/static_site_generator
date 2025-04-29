@@ -40,8 +40,17 @@ def block_to_block_type(block):
     # Split into lines for checks that need to examine each line
     lines = block.split("\n")
     # Check if it starts with 1-6 # followed by a space
-    if block.startswith(('#', '##', '###', '####', '#####', '######')) and block[block.find('#')+1:block.find('#')+2] == ' ':
-        return BlockType.HEADING
+    if block.startswith('#'):
+    # Count consecutive # characters
+        hash_count = 0
+        for char in block:
+            if char == '#':
+                hash_count += 1
+            else:
+                break
+    # Check if 1-6 # followed by a space
+        if 1 <= hash_count <= 6 and block[hash_count] == ' ':
+            return BlockType.HEADING
     
     if all(line.startswith("- ") for line in lines):
         return BlockType.UNORDERED_LIST
@@ -55,7 +64,8 @@ def block_to_block_type(block):
     if len(lines) > 0:
         is_ordered_list = True
         for i, line in enumerate(lines, 1):
-            if not line.startswith(f"{i}. "):
+            expected_prefix = f"{i}. "
+            if not line.startswith(expected_prefix):
                 is_ordered_list = False
                 break
         if is_ordered_list:
