@@ -64,33 +64,29 @@ def copy_from_source_to_destination(source, destination):
     copy_source(source, destination)
 
 def generate_pages_recursive(content_path, template_path, content_root, destination_root, basepath="/"):
-    """
-    Recursively generates HTML pages from Markdown files in a directory.
-
-    Args:
-        dir_path_content (str): The path to the directory containing Markdown files.
-        template_path (str): The path to the HTML template file.
-        dest_path (str): The destination path for the generated HTML files.
-    """
     content_root = Path(content_root).resolve()
     destination_root = Path(destination_root).resolve()
     content_path = Path(content_path).resolve()
-    # Iterate through all items in the directory
+    
     for item in content_path.iterdir():
         rel_path = item.relative_to(content_root)
         out_path = destination_root / rel_path
-        # ...decide what to do based on file or dir!
-        # Construct the destination path
+        
         if item.is_dir():
-            # If it's a directory, recursively call this function
-            generate_pages_recursive(item.as_posix(), template_path, content_root.as_posix(), destination_root.as_posix(), basepath)
+            generate_pages_recursive(item, template_path, content_root, destination_root, basepath)
         elif item.suffix == ".md":
-            dir_name = out_path.with_suffix("")
-            dir_name.mkdir(parents=True, exist_ok=True)
-            # If it's a Markdown file, generate the HTML page
-            html_file_path = dir_name / "index.html"
+            # For index.md files, place them directly in their parent directory
+            if item.stem == "index":
+                html_file_path = destination_root / rel_path.parent / "index.html"
+            else:
+                # For non-index.md files, create a directory with their name
+                dir_name = out_path.with_suffix("")
+                dir_name.mkdir(parents=True, exist_ok=True)
+                html_file_path = dir_name / "index.html"
+            
+            # Make sure parent directory exists
             html_file_path.parent.mkdir(parents=True, exist_ok=True)
-            generate_page(item.as_posix(), template_path, html_file_path.as_posix(), basepath)
+            generate_page(item, template_path, html_file_path, basepath)
 
 
 
