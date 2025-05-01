@@ -163,7 +163,7 @@ def text_to_children(text):
         html_nodes.append(html_node)
     return html_nodes
 
-def generate_page(from_path, template_path, dest_path):
+def generate_page(from_path, template_path, dest_path, basepath="/"):
     """
     Generates an HTML page from a Markdown file using a template.
 
@@ -191,7 +191,9 @@ def generate_page(from_path, template_path, dest_path):
     html_content = template_content.replace("{{ Content }}", html_content)
     # Replace the placeholder in the template with the title
     html_content = html_content.replace("{{ Title }}", title)
-
+    # Replace the href="{{ href }}" with the path to the file
+    html_content = html_content.replace('href="/', f'href="{basepath}')
+    html_content = html_content.replace('src="/', f'src="{basepath}')
     # Write the generated HTML content to the destination file
     # Ensure the destination directory exists
     os.makedirs(os.path.dirname(dest_path), exist_ok=True)
