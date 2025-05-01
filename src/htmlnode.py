@@ -2,8 +2,8 @@ class HTMLNode:
     def __init__(self, tag=None, value=None, children=None, props=None):
         self.tag = tag
         self.value = value
-        self.children = children
-        self.props = props
+        self.children = children or []
+        self.props = props or {}
 
     def to_html(self):
         raise NotImplementedError
@@ -25,16 +25,28 @@ class LeafNode(HTMLNode):
         super().__init__(tag, value, [], props)
 
     def to_html(self):
-        if not self.value:
-            raise ValueError
-        elif self.tag is None:
-            return self.value
-        else:
+        self_closing_tags = ["img", "br", "hr", "input", "meta", "link"]
+
+        if self.tag is None:
+            return self.value or ""
+        else:  
             props_html = ""
             if self.props:
                 for key, value in self.props.items():
+                    # Make sure we're not converting dictionaries to strings
+                    if isinstance(value, dict):
+                        # This should never happen, but just in case
+                        print(f"Warning: Found nested dict in props: {key}={value}")
                     props_html += f' {key}="{value}"'
-            return f"<{self.tag}{props_html}>{self.value}</{self.tag}>"
+
+            # Handle self-closing tags
+            if self.tag in self_closing_tags:
+                return f"<{self.tag}{props_html} />"
+            # For regular tags, require a value
+            elif not self.value and self.tag not in self_closing_tags:
+                raise ValueError(f"Leafnode: No value specified for {self.tag}")
+            else:
+                return f"<{self.tag}{props_html}>{self.value}</{self.tag}>"
 
 class ParentNode(HTMLNode):
     def __init__(self, tag, children, props=None):

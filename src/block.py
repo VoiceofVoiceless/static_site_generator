@@ -1,6 +1,7 @@
+import os
 from enum import Enum
 from htmlnode import HTMLNode, LeafNode, ParentNode
-from inline import text_to_textnodes
+from inline import text_to_textnodes, extract_title
 from textnode import TextNode, TextType, text_node_to_html_node
 class BlockType(Enum):
     """
@@ -161,3 +162,38 @@ def text_to_children(text):
         html_node = text_node_to_html_node(text_node)
         html_nodes.append(html_node)
     return html_nodes
+
+def generate_page(from_path, template_path, dest_path):
+    """
+    Generates an HTML page from a Markdown file using a template.
+
+    Args:
+        from_path (str): The path to the Markdown file.
+        template_path (str): The path to the HTML template file.
+        dest_path (str): The destination path for the generated HTML file.
+    """
+    print(f"Generating page from {from_path} to {dest_path} using template {template_path}")
+    # Read the Markdown content
+    with open(from_path, 'r') as f:
+        markdown_content = f.read()
+    # Read the template content
+    with open(template_path, 'r') as f:
+        template_content = f.read()
+
+    # Convert Markdown to HTML nodes
+    html_node = markdown_to_html_node(markdown_content)
+    # Convert the HTML nodes to HTML strings
+    html_content = html_node.to_html()
+    title = extract_title(markdown_content)
+
+
+    # Replace the placeholder in the template with the generated HTML
+    html_content = template_content.replace("{{ Content }}", html_content)
+    # Replace the placeholder in the template with the title
+    html_content = html_content.replace("{{ Title }}", title)
+
+    # Write the generated HTML content to the destination file
+    # Ensure the destination directory exists
+    os.makedirs(os.path.dirname(dest_path), exist_ok=True)
+    with open(dest_path, 'w') as f:
+        f.write(html_content)

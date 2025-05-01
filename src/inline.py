@@ -46,6 +46,20 @@ def extract_markdown_links(text):
     list_of_tuples = re.findall(r"(?<!!)\[([^\[\]]*)\]\(([^\(\)]*)\)", text)
     return list_of_tuples
 
+def extract_title(markdown):
+    #extract the title from the markdown text
+    title = ""
+    lines = markdown.split("\n")
+    for line in lines:
+        if line.startswith("# "):
+            # Remove the leading "# " or "<h1>" and trailing "#"
+            title = line[2:].strip()
+            break
+    if not title:
+        raise ValueError("Invalid markdown syntax: title not found")
+
+    return title
+
 def split_nodes_image(old_nodes):
     result = []
     for node in old_nodes:
@@ -61,7 +75,7 @@ def split_nodes_image(old_nodes):
                 current_text = after_text
                 if before_text:
                     sections.append(TextNode(before_text, TextType.TEXT))
-                sections.append(TextNode(list_of_anchor_text_and_images[0][0], TextType.IMAGE, {"src": list_of_anchor_text_and_images[0][1]}))
+                sections.append(TextNode(list_of_anchor_text_and_images[0][0], TextType.IMAGE, list_of_anchor_text_and_images[0][1]))
             if current_text:
                     sections.append(TextNode(current_text, TextType.TEXT))
             result += sections    
@@ -83,7 +97,7 @@ def split_nodes_link(old_nodes):
                 current_text = after_text
                 if before_text:
                     sections.append(TextNode(before_text, TextType.TEXT))
-                sections.append(TextNode(list_of_anchor_text_and_links[0][0], TextType.LINK, {"href": list_of_anchor_text_and_links[0][1]}))
+                sections.append(TextNode(list_of_anchor_text_and_links[0][0], TextType.LINK, list_of_anchor_text_and_links[0][1]))
             if current_text:
                     sections.append(TextNode(current_text, TextType.TEXT))
             result += sections    

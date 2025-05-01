@@ -1,6 +1,6 @@
 import unittest
 from textnode import TextNode, TextType
-from inline import split_nodes_delimiter, extract_markdown_images, extract_markdown_links, split_nodes_image, split_nodes_link, text_to_textnodes
+from inline import split_nodes_delimiter, extract_markdown_images, extract_markdown_links, split_nodes_image, split_nodes_link, text_to_textnodes, extract_title
 
 class TestInlineMarkdown(unittest.TestCase):
     
@@ -128,6 +128,56 @@ class TestInlineMarkdown(unittest.TestCase):
         self.assertEqual(nodes[5].text, "code")
         self.assertEqual(nodes[5].text_type, TextType.CODE)
        
+    def test_extract_title(self):
+    # Test with a valid markdown
+        assert extract_title("# Hello World") == "Hello World"
+    
+    # Test with leading/trailing spaces
+        assert extract_title("# Hello World  ") == "Hello World"
+    
+    # Test with no title
+        try:
+            extract_title("Hello World")
+            assert False, "Should have raised an exception"
+        except ValueError:
+            pass
+    
+    # Test with invalid markdown
+        try:
+            extract_title("## Hello World")
+            assert False, "Should have raised an exception"
+        except ValueError:
+            pass
+    # Test with empty string
+        try:
+            extract_title("")
+            assert False, "Should have raised an exception"
+        except ValueError:
+            pass
+    # Test with only spaces
+        try:
+            extract_title("   ")
+            assert False, "Should have raised an exception"
+        except ValueError:
+            pass
+    # Test with no leading hash
+        try:
+            extract_title("Hello World")
+            assert False, "Should have raised an exception"
+        except ValueError:
+            pass
+    # Test with multiple hashes
+        try:
+            extract_title("### Hello World")
+            assert False, "Should have raised an exception"
+        except ValueError:
+            pass
+    # Test with special characters
+        assert extract_title("# Hello @World!") == "Hello @World!"
+    # Test with unicode characters
+        assert extract_title("# Hello 世界") == "Hello 世界"
+    # Test with emojis
+        assert extract_title("# Hello 🌍") == "Hello 🌍"
         
 
 
