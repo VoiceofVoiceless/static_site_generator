@@ -85,8 +85,10 @@ def generate_pages_recursive(content_path, template_path, content_root, destinat
             # If it's a directory, recursively call this function
             generate_pages_recursive(item.as_posix(), template_path, content_root.as_posix(), destination_root.as_posix(), basepath)
         elif item.suffix == ".md":
+            dir_name = out_path.with_suffix("")
+            dir_name.mkdir(parents=True, exist_ok=True)
             # If it's a Markdown file, generate the HTML page
-            html_file_path = out_path.with_suffix( ".html")
+            html_file_path = dir_name / "index.html"
             html_file_path.parent.mkdir(parents=True, exist_ok=True)
             generate_page(item.as_posix(), template_path, html_file_path.as_posix(), basepath)
 
